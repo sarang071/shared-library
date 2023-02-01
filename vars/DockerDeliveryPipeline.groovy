@@ -1,3 +1,7 @@
+@Library('shared-library') _
+
+def config = [name: 'Newman', dayOfWeek: 'Friday']
+
 pipeline {
 
     agent any
@@ -8,7 +12,7 @@ pipeline {
 
             steps {
 
-                sh 'echo Hello World'
+                helloWorld(config)
 
             }
 
