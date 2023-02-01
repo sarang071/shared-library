@@ -1,35 +1,32 @@
 pipeline {
     agent any
-    environment {
-        dev_account_id = "1245789"
-        qa_account_id  = "5478951"
+    environment{
+        RegistryURL = "https://registry.hub.docker.com/"
+        RepoName = "sarangp007/jenkins_docker"
+        dh_creds = 'dockerhub_creds'
     }
-    parameters {
-        choice(name: 'ACCOUNT', choices: ['dev','qa'], description: 'Pick Enviornment')
-    }
-    stages {
-        stage('dev account'){
-                when{
-                    expression{
-                        params.ACCOUNT == 'dev'
-                    }
-                }
-                steps{
-                    echo "We are using ${env.dev_account_id}"
-                }
-
+    stages{
+        stage('Builing image') {
+            environment{
+                registry_endpoint = "${env.RegistryURL}" + "${env.RepoName}"
+                tag = "${env.RepoName}" + ':' + "$GIT_COMMIT"
+               // file_path = "${workspace}/docker/"
             }
-        stage('QA account'){
-                when{
-                    expression{
-                        params.ACCOUNT == 'qa'
-                    }
-                }
-                steps{
-                    echo "We are using ${env.qa_account_id}"
-                }
+            steps{
+                script{
+                     docker.withRegistry(registry_endpoint, dh_creds) {
 
+                     def Image = docker.build(tag,/* file_path*/)
+
+                     /* Push the container to the custom Registry */
+                     Image.push()
+
+                 }
             }
+
         }
-
+    }
+    
+    }
+  
 }
